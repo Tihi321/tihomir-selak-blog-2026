@@ -6,6 +6,9 @@ node_modules/
 # Build output
 dist/
 .astro/
+.codex/temp/
+test-results/
+playwright-report/
 
 # Local configuration and secrets
 .env

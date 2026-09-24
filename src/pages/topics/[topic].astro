@@ -1,0 +1,18 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleList from '../../components/ArticleList.astro';
+import { isPublished, sortNewest, topicLabel } from '../../site';
+const writing = sortNewest(await getCollection('writing', isPublished));
+export async function getStaticPaths() {
+  const published = await getCollection('writing', isPublished);
+  const topics = [...new Set(published.flatMap((article) => article.data.topics))];
+  return topics.map((topic) => ({ params: { topic }, props: { topic } }));
+}
+const { topic } = Astro.props;
+const articles = writing.filter((article) => article.data.topics.includes(topic));
+---
+<BaseLayout title={`Topic: ${topicLabel(topic)}`} description={`Published writing filed under ${topicLabel(topic)}.`}>
+  <section class="page-intro wrap"><h1>{topicLabel(topic)}</h1><p>Writing filed under this topic.</p></section>
+  <section class="wrap archive-list"><ArticleList articles={articles} /></section>
+</BaseLayout>

@@ -1,0 +1,20 @@
+---
+import { getCollection, render } from 'astro:content';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import { sortNewest } from '../../site';
+export async function getStaticPaths() {
+  if (!import.meta.env.DEV) return [];
+  const drafts = sortNewest(await getCollection('writing', ({ data }) => data.status === 'draft'));
+  return drafts.map((article) => ({ params: { slug: article.id.replace(/\.(md|mdx)$/, '') }, props: { article } }));
+}
+const { article } = Astro.props;
+const { Content } = await render(article);
+const drafts = sortNewest(await getCollection('writing', ({ data }) => data.status === 'draft'));
+const currentIndex = drafts.findIndex((entry) => entry.id === article.id);
+---
+<ArticleLayout article={article} Content={Content} draft>
+  {(currentIndex > 0 || currentIndex < drafts.length - 1) && <nav class="wrap article-navigation" aria-label="Article navigation">
+    {currentIndex > 0 && <p><a href={`/draft-preview/${drafts[currentIndex - 1].id.replace(/\.(md|mdx)$/, '')}/`}>Newer draft: {drafts[currentIndex - 1].data.title}</a></p>}
+    {currentIndex < drafts.length - 1 && <p><a href={`/draft-preview/${drafts[currentIndex + 1].id.replace(/\.(md|mdx)$/, '')}/`}>Older draft: {drafts[currentIndex + 1].data.title}</a></p>}
+  </nav>}
+</ArticleLayout>

@@ -1,0 +1,13 @@
+:root {
+  color-scheme: light;
+  --canvas: #f4f7f9;
+  --paper: #fff;
+  --ink: #17262e;
+  --muted: #5d6f79;
+  --signal: #246b66;
+  --revision: #a7443d;
+  --rule: #c8d3d8;
+  --measure: 68ch;
+  --sans: "Archivo", "Aptos", "Segoe UI", sans-serif;
+  --serif: "Literata", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+}

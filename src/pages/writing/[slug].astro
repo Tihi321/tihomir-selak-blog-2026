@@ -1,0 +1,86 @@
+---
+import { getCollection, render } from "astro:content";
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
+import { isPublished, sortNewest } from "../../site";
+export async function getStaticPaths() {
+  const articles = await getCollection(
+    "writing",
+    (article) =>
+      isPublished(article) ||
+      (import.meta.env.DEV &&
+        article.data.status === "published" &&
+        article.id.startsWith("__playwright-fixture")),
+  );
+  return articles.map((article) => ({
+    params: { slug: article.id.replace(/\.(md|mdx)$/, "") },
+    props: { article },
+  }));
+}
+const { article } = Astro.props;
+const { Content } = await render(article);
+const published = sortNewest(await getCollection("writing", isPublished));
+const fixtureArticle =
+  import.meta.env.DEV && article.id.startsWith("__playwright-fixture");
+const navigationArticles = sortNewest(
+  fixtureArticle
+    ? [
+        ...published,
+        ...(await getCollection(
+          "writing",
+          (entry) =>
+            entry.data.status === "published" &&
+            entry.id.startsWith("__playwright-fixture"),
+        )),
+      ]
+    : published,
+);
+const currentIndex = navigationArticles.findIndex(
+  (entry) => entry.id === article.id,
+);
+const related = published
+  .filter(
+    (entry) =>
+      entry.id !== article.id &&
+      entry.data.topics.some((topic) => article.data.topics.includes(topic)),
+  )
+  .slice(0, 2);
+---
+
+<ArticleLayout article={article} Content={Content}>
+  {
+    (currentIndex > 0 ||
+      currentIndex < navigationArticles.length - 1 ||
+      related.length > 0) && (
+      <nav class="wrap article-navigation" aria-label="Article navigation">
+        {currentIndex > 0 && (
+          <p>
+            <a
+              href={`/writing/${navigationArticles[currentIndex - 1].id.replace(/\.(md|mdx)$/, "")}/`}
+            >
+              Newer: {navigationArticles[currentIndex - 1].data.title}
+            </a>
+          </p>
+        )}
+        {currentIndex < navigationArticles.length - 1 && (
+          <p>
+            <a
+              href={`/writing/${navigationArticles[currentIndex + 1].id.replace(/\.(md|mdx)$/, "")}/`}
+            >
+              Older: {navigationArticles[currentIndex + 1].data.title}
+            </a>
+          </p>
+        )}
+        {related.length > 0 && (
+          <p>
+            Related:{" "}
+            {related.map((item) => (
+              <a href={`/writing/${item.id.replace(/\.(md|mdx)$/, "")}/`}>
+                {item.data.title}
+              </a>
+            ))}
+          </p>
+        )}
+      </nav>
+    )
+  }
+</ArticleLayout>
