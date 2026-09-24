@@ -1,0 +1,31 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ArticleList from '../components/ArticleList.astro';
+import { isPublished, sortNewest, SITE_DESCRIPTION } from '../site';
+const writing = sortNewest(await getCollection('writing', isPublished));
+const topics = [...new Set(writing.flatMap((article) => article.data.topics))].sort();
+const latest = writing.slice(0, 1);
+const selected = writing.filter((article) => article.data.featured).slice(0, 4);
+---
+<BaseLayout description={SITE_DESCRIPTION}>
+  <section class="page-intro wrap">
+    <h1>Notes from the work.</h1>
+    <p>Field notes on software, leadership, practical AI, and experiments that became useful.</p>
+  </section>
+  <section class="feature wrap" aria-labelledby="latest-heading">
+    <h2 class="section-heading" id="latest-heading">Latest writing</h2>
+    {latest.length ? <ArticleList articles={latest} /> : <p>No articles have been published yet.</p>}
+  </section>
+  {writing.length === 0 && <section class="editorial-note wrap" aria-labelledby="editorial-heading">
+    <h2 class="section-heading" id="editorial-heading">What belongs here</h2>
+    <div class="editorial-themes">
+      <article><h3>Software in practice</h3><p>Clear notes on the decisions, trade-offs, and small details that shape useful software.</p></article>
+      <article><h3>Leading delivery</h3><p>Thoughts on helping teams make progress with care, shared context, and room to learn.</p></article>
+      <article><h3>Useful experiments</h3><p>Curiosity is welcome; claims should stay close to what experience and evidence can support.</p></article>
+    </div>
+    <p class="editorial-about"><a href="/about/">A little more about this site and its approach →</a></p>
+  </section>}
+  {selected.length > 1 && <section class="wrap" aria-labelledby="selected-heading"><h2 class="section-heading" id="selected-heading">Selected writing</h2><ArticleList articles={selected.slice(1)} /></section>}
+  {topics.length > 0 && <section class="wrap topic-section" aria-labelledby="topics-heading"><h2 class="section-heading" id="topics-heading">Topics</h2><div class="topic-cloud">{topics.map((topic) => <a class="topic-link" href={`/topics/${topic}/`}>{topic.replaceAll('-', ' ')}</a>)}</div></section>}
+</BaseLayout>

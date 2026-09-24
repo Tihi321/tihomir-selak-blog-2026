@@ -8,7 +8,27 @@
     "node": ">=24"
   },
   "scripts": {
-    "check": "node --check scripts/build-placeholder.mjs",
-    "build": "node scripts/build-placeholder.mjs"
+    "dev": "astro dev",
+    "check": "astro check",
+    "build": "astro build",
+    "preview": "astro preview",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "generate:social-card": "node scripts/rasterize-social-card.mjs",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@astrojs/mdx": "^8.0.2",
+    "@astrojs/rss": "^4.0.12",
+    "@astrojs/sitemap": "^3.6.0",
+    "@axe-core/playwright": "^4.10.2",
+    "@emnapi/runtime": "^1.11.1",
+    "@playwright/test": "^1.55.0",
+    "astro": "^7.3.5",
+    "playwright-core": "^1.55.0",
+    "prettier": "^3.6.2",
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript": "^5.9.2"
   }
 }

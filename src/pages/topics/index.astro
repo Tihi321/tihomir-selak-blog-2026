@@ -1,0 +1,11 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { isPublished } from '../../site';
+const writing = await getCollection('writing', isPublished);
+const topics = [...new Set(writing.flatMap((article) => article.data.topics))].sort();
+---
+<BaseLayout title="Topics" description="Browse published writing by topic.">
+  <section class="page-intro wrap"><h1>Topics</h1><p>Browse the subjects that connect these notes.</p></section>
+  <nav class="topic-cloud wrap" aria-label="Topics">{topics.map((topic) => <a class="topic-link" href={`/topics/${topic}/`}>{topic.replaceAll('-', ' ')}</a>)}</nav>
+</BaseLayout>

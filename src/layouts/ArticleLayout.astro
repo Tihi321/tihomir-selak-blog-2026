@@ -1,0 +1,43 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import '../styles/prose.css';
+import { getReadingMinutes, SITE_URL } from '../site';
+interface Props { article: any; Content: any; draft?: boolean; }
+const { article, Content, draft = false } = Astro.props;
+const { data, body, id } = article;
+const canonical = data.canonicalUrl ?? `${SITE_URL}/writing/${id.replace(/\.(md|mdx)$/, '')}/`;
+const minutes = getReadingMinutes(body);
+const date = (d: Date) => d.toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+const jsonLd = {
+  '@context': 'https://schema.org', '@type': 'BlogPosting', headline: data.title,
+  description: data.description, datePublished: data.publishedAt.toISOString(),
+  ...(data.updatedAt ? { dateModified: data.updatedAt.toISOString() } : {}),
+  mainEntityOfPage: canonical, author: { '@type': 'Person', name: 'Tihomir Selak' },
+  publisher: { '@type': 'Person', name: 'Tihomir Selak' },
+};
+---
+<BaseLayout title={data.title} description={data.description} canonical={canonical} type="article">
+  <article class="article wrap">
+    <aside class="article-meta" aria-label="Article details">
+      <time datetime={data.publishedAt.toISOString()}>{date(data.publishedAt)}</time>
+      {data.updatedAt && <span class="revision-note">Revised {date(data.updatedAt)}</span>}
+      <span>{minutes} min read</span>
+      {data.revisionNote && <p class="revision-note">{data.revisionNote}</p>}
+    </aside>
+    <div class="prose">
+      {draft && <p class="draft-banner">Local draft preview · this article is not included in the production site, feed, or sitemap.</p>}
+      <h1>{data.title}</h1>
+      <p class="standfirst">{data.description}</p>
+      <div class="prose-body"><Content /></div>
+    </div>
+    <aside class="article-aside" aria-label="About revisions">
+      {data.updatedAt && <p><strong>Revision</strong><br />This article first appeared on {date(data.publishedAt)} and was revised on {date(data.updatedAt)}.</p>}
+    </aside>
+    <section class="article-end" aria-labelledby="topics-heading">
+      <h2 id="topics-heading">Filed under</h2>
+      <div class="article-topics">{data.topics.map((topic: string) => draft ? <span>{topic.replaceAll('-', ' ')}</span> : <a href={`/topics/${topic}/`}>{topic.replaceAll('-', ' ')}</a>)}</div>
+    </section>
+  </article>
+  <slot />
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+</BaseLayout>

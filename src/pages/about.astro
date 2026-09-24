@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { PERSONAL_SITE_URL } from '../site';
+---
+<BaseLayout title="About" description="About this publication and its editorial approach.">
+  <section class="page-intro wrap"><h1>About these notes</h1><p>A working record, edited with care.</p></section>
+  <section class="about-copy wrap">
+    <p>This is a place for practical notes on software engineering, technical leadership, useful tools, and selected creative experiments. The aim is to explain what I tried, what shaped the decisions, and what I learned, with room for limits and uncertainty.</p>
+    <p>Older pieces are dated honestly when revised. Drafts stay out of the published site until they are ready for editorial review. Work related to employers or customers appears only when it can be discussed openly.</p>
+    <p>I’m Tihomir, a software engineer and development team lead. <a href={PERSONAL_SITE_URL}>My personal site</a> has a shorter introduction and links to my work.</p>
+  </section>
+</BaseLayout>

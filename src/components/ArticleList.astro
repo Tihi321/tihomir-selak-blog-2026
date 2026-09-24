@@ -1,0 +1,17 @@
+---
+import { topicLabel } from '../site';
+const { articles, draft = false } = Astro.props;
+const date = (d: Date) => d.toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+---
+<div class="field-log">
+  {articles.map((article: any) => <article class="entry">
+    <time class="entry-date" datetime={article.data.publishedAt.toISOString()}>{date(article.data.publishedAt)}</time>
+    <div>
+      <h2><a href={draft ? `/draft-preview/${article.id.replace(/\.(md|mdx)$/, '')}/` : `/writing/${article.id.replace(/\.(md|mdx)$/, '')}/`}>{article.data.title}</a></h2>
+      <p>{article.data.description}</p>
+    </div>
+    <div class="entry-topics" aria-label="Topics">
+      {article.data.topics.map((topic: string) => <a href={`/topics/${topic}/`}>{topicLabel(topic)}</a>)}
+    </div>
+  </article>)}
+</div>

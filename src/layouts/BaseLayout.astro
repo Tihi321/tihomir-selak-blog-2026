@@ -1,0 +1,49 @@
+---
+import '../styles/global.css';
+import { SITE_DESCRIPTION, SITE_TITLE, SITE_URL, PERSONAL_SITE_URL } from '../site';
+interface Props { title?: string; description?: string; canonical?: string; socialImage?: string; type?: 'website' | 'article'; }
+const { title = SITE_TITLE, description = SITE_DESCRIPTION, canonical, socialImage = `${SITE_URL}/social-card.png`, type = 'website' } = Astro.props;
+const pageTitle = title === SITE_TITLE ? title : `${title} — Tihomir Selak`;
+const url = canonical ?? new URL(Astro.url.pathname, SITE_URL).toString();
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f4f7f9" />
+    <link rel="canonical" href={url} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="application/rss+xml" title="Tihomir Selak — field notes" href="/rss.xml" />
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content="Tihomir Selak — field notes" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={url} />
+    <meta property="og:image" content={socialImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="site-shell">
+      <header class="masthead wrap">
+        <a class="brand" href="/">Tihomir <span>/ Field notes</span></a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/" aria-current={Astro.url.pathname === '/' ? 'page' : undefined}>Latest</a>
+          <a href="/writing/" aria-current={Astro.url.pathname.startsWith('/writing') ? 'page' : undefined}>Writing</a>
+          <a href="/topics/" aria-current={Astro.url.pathname.startsWith('/topics') ? 'page' : undefined}>Topics</a>
+          <a href="/about/" aria-current={Astro.url.pathname === '/about/' ? 'page' : undefined}>About</a>
+          <a href="/rss.xml" aria-label="RSS feed">RSS</a>
+          <a href={PERSONAL_SITE_URL}>Tihomir Selak</a>
+        </nav>
+      </header>
+      <main id="main"><slot /></main>
+      <footer class="site-footer wrap">
+        <span>Notes on software, leadership, and useful experiments.</span>
+        <span><a href={PERSONAL_SITE_URL}>Personal site</a> · <a href="/rss.xml">RSS</a></span>
+      </footer>
+    </div>
+  </body>
+</html>

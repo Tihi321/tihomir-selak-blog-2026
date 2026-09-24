@@ -1,6 +1,6 @@
 # Personal blog 2026 — implementation and migration plan
 
-Status: ready for local implementation; Netlify credentials and DNS intentionally deferred
+Status: implemented locally; awaiting user review of draft prose; Netlify credentials and DNS intentionally deferred
 Repository: `Tihi321/tihomir-selak-blog-2026`
 Local project: `C:\projects\Personal\tihomir-selak-blog-2026`
 Target origin: `https://blog.tihomir-selak.from.hr/`
@@ -24,6 +24,29 @@ The launch must include at least two carefully revised articles migrated from `a
 - The main editorial territory is software engineering, engineering leadership, practical AI use, technical tools, and selected creative experiments.
 - Physics, psychology, gaming-industry analysis, and other research-heavy subjects may appear only when properly sourced and reviewed.
 - Do not add comments, accounts, tracking, advertisements, affiliate links, pop-ups, or a newsletter signup in version 1.
+
+### Personal data library and editorial source precedence
+
+Future implementers are explicitly authorized to read `C:\projects\Cowork\Job` as the maintained personal-data, evidence, and planning library for author biography and fact-checking. The legacy blog remains the source for historical article text and media, but it is not the source of truth for current career facts.
+
+Use sources in this order when facts overlap:
+
+1. `research\career-facts.md` for user-confirmed career, leadership, education, and language facts.
+2. `cv\cv_content.json` for structured public biography, chronology, links, skills, and project summaries.
+3. `research\repository-evidence.md` for private supporting evidence and publication boundaries; internal counts and implementation details are not automatically publishable.
+4. `linkedin\profile-update-draft.md` for tone and concise biographical wording when consistent with the files above.
+5. `source\` for original verification documents only. Never publish certificates or source documents without a separate user decision.
+
+Editorial and implementation rules:
+
+- Read the minimum necessary files and never bulk-copy `C:\projects\Cowork\Job` into the blog repository.
+- Use this library to verify author biography and firsthand context, not to manufacture article conclusions or performance claims.
+- Keep private research notes, local paths, CV source data, certificates, repository histories, and unapproved employer details out of public pages, feeds, metadata, fixtures, screenshots, and committed article assets.
+- If maintained sources disagree, prefer the higher source above and record the conflict instead of guessing.
+- Any current-work article must remain a draft until the user approves its claims. Employer/customer screenshots, logos, architecture, source code, customer names, metrics, and confidential operational details always require explicit approval.
+- Historical article text must retain honest original and revision dates. Do not silently rewrite an old article so extensively that it appears to have been written in its original form.
+- A `draft` flag excludes prose from generated pages and feeds, but does not hide committed Markdown in a public GitHub repository. Keep the implementation branch local until the user approves the prose or explicitly accepts source-visible drafts; a private repository is another option for later review.
+- Before final editorial review, check whether any personal-data source changed during implementation and reconcile affected biography or claims.
 
 ## 3. Audience and job to be done
 
@@ -568,3 +591,33 @@ Ask the user before:
 - [Astro image guide](https://docs.astro.build/en/guides/images/)
 - [Astro testing guide](https://docs.astro.build/en/guides/testing/)
 - [Deploying a static Astro site to Netlify](https://docs.astro.build/en/guides/deploy/netlify/)
+
+## 18. Local implementation record — 24 September 2026
+
+### Completed locally
+
+- [x] Replaced the placeholder with a static Astro publication on the `feat/blog-foundation` branch.
+- [x] Added a validated writing collection, publication filtering, archive/topic pages, article metadata and JSON-LD, RSS, robots, sitemap, a 1200 × 630 PNG social fallback, favicon, 404, and security headers.
+- [x] Migrated and substantially revised the two selected historical posts as drafts, preserving their frontmatter publication dates in January 2024 and recording September 2026 revision dates. No legacy media was copied; the interactive story is deferred because asset rights and accessibility are unresolved.
+- [x] Added the new publication-intent article as a draft. It contains no proprietary work examples and is not represented as user-approved final prose or an approved AI-use disclosure.
+- [x] Added a dev-only local draft preview. Drafts and temporary navigation fixtures are excluded from production page paths, feeds, topic/archive lists, related writing, and sitemap output. Temporary e2e fixtures are byte-checked and removed by global teardown.
+- [x] Documented the legacy route map without activating redirects; `astro-blog-2024` remains untouched and unarchived.
+- [x] Added README authoring and local-review instructions, CI checks with a credential-aware deployment guard, and desktop/mobile screenshots under `review-images/`.
+- [x] Added an informative zero-published homepage state with editorial themes and an About link; it does not expose draft titles or imply that a piece has been published.
+
+### Verification results
+
+- [x] `yarn install --immutable` — passed; Yarn reports peer-dependency warnings (see note below).
+- [x] `yarn format:check` — passed.
+- [x] `yarn check` — passed with 0 errors, warnings, or hints.
+- [x] `yarn build` — passed; 5 production pages/routes generated, with no draft-preview route and no draft prose in production HTML or RSS.
+- [x] `yarn test:e2e` — 4/4 Playwright tests passed, including production draft exclusion, local draft preview, metadata/RSS, article navigation inside `<main>`, width checks at 320/390/768/1024/1440 px, and axe checks with no serious/critical violations.
+- [x] Visually reviewed refreshed home screenshots at 1440 × 1000 and 390 × 844, and earlier article screenshots at the same sizes. Screenshot files are in `review-images/`.
+
+### Deviations and remaining approval gates
+
+- Astro/Rolldown emits a non-fatal `MODULE_LEVEL_DIRECTIVE` warning for the generated MDX `use astro:head-inject` directive. It did not prevent checks or the static build.
+- Local checks do not include a Lighthouse run, a manual 200% zoom review, a JavaScript-disabled browser run, a live GitHub Actions run, Netlify credentials/site, DNS, deployment, or a production redirect test. These remain unverified/deferred, not claimed as passed.
+- All three articles remain `draft`. User review is required before any prose or current-work claims are approved, before an accurate AI-use disclosure is chosen, and before changing status to `published`.
+- Tracked draft Markdown remains readable to anyone who can read the Git repository. Do not push this branch while prose is unapproved unless the user explicitly accepts source-visible drafts or chooses a private repository.
+- The branch is local and uncommitted pending final review/corrections. Do not push, deploy, activate cross-domain redirects, or archive the legacy repository as part of this task.

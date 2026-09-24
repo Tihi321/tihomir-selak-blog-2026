@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '24.x'
+  NODE_VERSION: "24.x"
 
 jobs:
   quality:
@@ -37,10 +37,16 @@ jobs:
         run: yarn install --immutable
 
       - name: Check
-        run: yarn check
+        run: yarn format:check && yarn check
 
       - name: Build
         run: yarn build
+
+      - name: Install Chromium
+        run: yarn playwright install --with-deps chromium
+
+      - name: Browser checks
+        run: yarn test:e2e
 
   deploy:
     name: Deploy production

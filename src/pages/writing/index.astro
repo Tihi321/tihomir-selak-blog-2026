@@ -1,0 +1,13 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleList from '../../components/ArticleList.astro';
+import { isPublished, sortNewest } from '../../site';
+const articles = sortNewest(await getCollection('writing', isPublished));
+---
+<BaseLayout title="Writing" description="Published writing by Tihomir Selak, ordered from newest to oldest.">
+  <section class="page-intro wrap"><h1>Writing</h1><p>A chronological record of practical work, decisions, and experiments.</p></section>
+  <section class="wrap" style="padding-bottom: 5rem" aria-label="Published articles">
+    {articles.length ? <ArticleList articles={articles} /> : <p>No articles have been published yet.</p>}
+  </section>
+</BaseLayout>
