@@ -1,6 +1,6 @@
 # Personal blog 2026 — implementation and migration plan
 
-Status: implemented locally; awaiting user review of draft prose; Netlify credentials and DNS intentionally deferred
+Status: foundation implemented locally; article publication and six-post migration completed under TSB-02; Netlify credentials and DNS intentionally deferred
 Repository: `Tihi321/tihomir-selak-blog-2026`
 Local project: `C:\projects\Personal\tihomir-selak-blog-2026`
 Target origin: `https://blog.tihomir-selak.from.hr/`
@@ -86,6 +86,8 @@ Editorial principles:
 - If an article was materially produced with AI assistance, add an accurate disclosure only after confirming the wording with the user.
 
 ## 5. Historical-content audit
+
+> Migration scope and publication status were updated by `.codex/tickets/TSB-02-add-relevant-content/plan.md`. Its approved decisions supersede the launch-selection and draft-status decisions below; this section remains as the record of the original audit.
 
 The source contains six articles under `src/content/blog/2014`. The folder name says `2014`, but the frontmatter publication dates are in 2024. Treat frontmatter as the intended public date and correct the directory structure during migration.
 
@@ -621,3 +623,9 @@ Ask the user before:
 - All three articles remain `draft`. User review is required before any prose or current-work claims are approved, before an accurate AI-use disclosure is chosen, and before changing status to `published`.
 - Tracked draft Markdown remains readable to anyone who can read the Git repository. Do not push this branch while prose is unapproved unless the user explicitly accepts source-visible drafts or chooses a private repository.
 - The branch is local and uncommitted pending final review/corrections. Do not push, deploy, activate cross-domain redirects, or archive the legacy repository as part of this task.
+
+## 19. TSB-02 implementation update — 28 September 2026
+
+The approved TSB-02 scope superseded the earlier two-post draft selection. All six January–September 2024 archive posts are now substantially revised and published in the local static build, alongside the 2026 blog-intent note, for seven published articles total. Each historical post preserves its original publication date, adds a September 2026 revision date and note, retains its historical route in frontmatter, and uses text only. No legacy illustrations, screenshots, music, voices, or WAV audio were copied.
+
+The six same-host permanent redirects are configured in `netlify.toml`; the old personal-site repository owns redirects from its current origin. Redirect activation on production, DNS, Netlify deployment, and archival of `astro-blog-2024` remain deferred. TSB-02's implementation record contains the detailed changes and current verification results.

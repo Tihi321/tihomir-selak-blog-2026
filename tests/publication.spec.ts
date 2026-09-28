@@ -1,99 +1,164 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { mkdirSync, readdirSync, readFileSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-const draftRoutes = [
-  "/draft-preview/from-code-completion-to-architecture/",
-  "/draft-preview/building-an-ai-visual-story/",
-];
+const articles = [
+  {
+    title: "From code completion to architecture",
+    slug: "from-code-completion-to-architecture",
+    published: "2024-01-02",
+    updated: "2026-09-24",
+    topic: "software-engineering",
+  },
+  {
+    title: "Building an AI-assisted visual story",
+    slug: "building-an-ai-visual-story",
+    published: "2024-01-21",
+    updated: "2026-09-24",
+    topic: "experiments",
+  },
+  {
+    title: "When a story becomes an advertisement",
+    slug: "storytelling-and-product-placement",
+    published: "2024-01-25",
+    updated: "2026-09-28",
+    topic: "writing",
+  },
+  {
+    title: "Growth, culture, and reinvention in game studios",
+    slug: "growth-culture-and-reinvention-in-games",
+    published: "2024-02-04",
+    updated: "2026-09-28",
+    topic: "leadership",
+  },
+  {
+    title: "Fast judgments and modern decisions",
+    slug: "fast-judgments-and-modern-decisions",
+    published: "2024-04-20",
+    updated: "2026-09-28",
+    topic: "psychology",
+  },
+  {
+    title: "What physics means by observation",
+    slug: "what-physics-means-by-observation",
+    published: "2024-09-22",
+    updated: "2026-09-28",
+    topic: "physics",
+  },
+  {
+    title: "Why I’m rebuilding this blog",
+    slug: "why-rebuilding-this-blog",
+    published: "2026-09-24",
+    topic: "experiments",
+  },
+] as const;
+const articleRoutes = articles.map((article) => `/writing/${article.slug}/`);
 const fixtureRoute = "/writing/__playwright-fixture-2025/";
 const reviewImages = join(
   process.cwd(),
-  ".codex/tickets/blog-site-2026/review-images",
+  ".codex/tickets/TSB-02-add-relevant-content/review-images",
 );
 
-test("local draft previews remain separate from production output", async ({
+test("all seven articles are published with their original and revision dates", async ({
   page,
 }) => {
-  for (const path of ["/", "/writing/", "/about/", "/topics/"]) {
-    const response = await page.goto(path);
-    expect(response?.ok()).toBeTruthy();
-    await expect(
-      page.getByText(
-        /From code completion to architecture|Building an AI-assisted visual story/,
-      ),
-    ).toHaveCount(0);
-  }
-  for (const path of draftRoutes) {
-    const response = await page.goto(path);
-    expect(response?.ok()).toBeTruthy();
-    await expect(page.getByText("Local draft preview")).toBeVisible();
-    await expect(
-      page.locator(".article-topics a[href^='/topics/']"),
-    ).toHaveCount(0);
-  }
-  await page.goto("/");
-  await expect(
-    page.getByRole("heading", { name: "What belongs here" }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("link", { name: /about this site and its approach/ }),
-  ).toHaveAttribute("href", "/about/");
-
-  const dist = join(process.cwd(), "dist");
-  const files = (directory: string): string[] =>
-    readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
-      const path = join(directory, entry.name);
-      return entry.isDirectory() ? files(path) : [path];
-    });
-  const builtFiles = files(dist);
-  expect(
-    builtFiles.some((path) =>
-      path.includes(`${join("dist", "draft-preview")}`),
-    ),
-  ).toBe(false);
-  const publicHtml = builtFiles
-    .filter((path) => path.endsWith(".html"))
-    .map((path) => readFileSync(path, "utf8"))
-    .join("\n");
-  expect(publicHtml).not.toContain("From code completion to architecture");
-  expect(publicHtml).not.toContain("Building an AI-assisted visual story");
-  expect(publicHtml).not.toContain("Why I’m rebuilding this blog");
-});
-
-test("archive, article previews, feed, and navigation render with valid metadata", async ({
-  page,
-  request,
-}) => {
-  for (const path of ["/", "/writing/", ...draftRoutes, fixtureRoute]) {
+  for (const path of ["/", "/writing/", "/topics/", "/about/"]) {
     const response = await page.goto(path);
     expect(response?.status()).toBe(200);
     await expect(page.locator("main h1")).toHaveCount(1);
+    await expect(
+      page.getByText("No articles have been published yet."),
+    ).toHaveCount(0);
+  }
+
+  await page.goto("/writing/");
+  await expect(
+    page.locator("section[aria-label='Published articles'] .entry"),
+  ).toHaveCount(7);
+
+  for (const article of articles) {
+    const path = `/writing/${article.slug}/`;
+    const response = await page.goto(path);
+    expect(response?.status(), path).toBe(200);
+    await expect(page.locator("main h1")).toHaveText(article.title);
+    await expect(page.locator(".draft-banner")).toHaveCount(0);
+    await expect(page.locator("article time")).toHaveAttribute(
+      "datetime",
+      new RegExp(`^${article.published}`),
+    );
+    if ("updated" in article) {
+      await expect(page.locator(".revision-note").first()).toContainText(
+        article.updated.slice(0, 4),
+      );
+    }
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
-      /https:\/\/blog\.tihomir-selak\.from\.hr\//,
+      `https://blog.tihomir-selak.from.hr${path}`,
     );
     await expect(page.locator('meta[name="description"]')).toHaveAttribute(
       "content",
       /.+/,
     );
+    await expect(page.locator('meta[property="og:type"]')).toHaveAttribute(
+      "content",
+      "article",
+    );
+    const jsonLd = await page
+      .locator('script[type="application/ld+json"]')
+      .evaluate((element) => JSON.parse(element.innerHTML));
+    expect(jsonLd["@type"]).toBe("BlogPosting");
+    expect(jsonLd.datePublished).toContain(article.published);
+    if ("updated" in article) {
+      expect(jsonLd.dateModified).toContain(article.updated);
+    }
+    await expect(
+      page.locator("main nav[aria-label='Article navigation'] a").first(),
+    ).toHaveAttribute("href", /^\/writing\//);
   }
-  await page.goto(draftRoutes[0]);
-  await expect(page.locator('meta[property="og:type"]')).toHaveAttribute(
-    "content",
-    "article",
-  );
-  const jsonLd = await page
-    .locator('script[type="application/ld+json"]')
-    .evaluate((element) => JSON.parse(element.innerHTML));
-  expect(jsonLd["@type"]).toBe("BlogPosting");
+});
+
+test("published articles are discoverable from topics, the home page, and RSS", async ({
+  page,
+  request,
+}) => {
+  await page.goto("/");
+  await expect(
+    page.getByRole("link", { name: "Why I’m rebuilding this blog" }),
+  ).toHaveAttribute("href", articleRoutes.at(-1)!);
+  await expect(
+    page.getByRole("link", {
+      name: "Growth, culture, and reinvention in game studios",
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Building an AI-assisted visual story" }),
+  ).toBeVisible();
+
+  for (const topic of [
+    "experiments",
+    "leadership",
+    "psychology",
+    "physics",
+    "software-engineering",
+  ]) {
+    const response = await page.goto(`/topics/${topic}/`);
+    expect(response?.status()).toBe(200);
+    const expected = articles.filter((article) => article.topic === topic);
+    for (const article of expected) {
+      await expect(
+        page.getByRole("link", { name: article.title, exact: true }),
+      ).toBeVisible();
+    }
+  }
+
   const feed = await request.get("/rss.xml");
   expect(feed.ok()).toBeTruthy();
   const xml = await feed.text();
   expect(xml).toContain("<rss");
-  expect(xml).not.toContain("draft");
+  for (const article of articles) expect(xml).toContain(article.title);
   expect(xml).not.toContain("Playwright route fixture");
+
   const robots = await request.get("/robots.txt");
   expect(await robots.text()).toContain("/sitemap-index.xml");
   const securityHeaders = readFileSync(
@@ -102,27 +167,56 @@ test("archive, article previews, feed, and navigation render with valid metadata
   );
   expect(securityHeaders).toContain("Content-Security-Policy");
   expect(securityHeaders).toContain("X-Content-Type-Options");
-  await page.goto(fixtureRoute);
-  await expect(
-    page.getByRole("heading", {
-      level: 1,
-      name: "Playwright route fixture, newer",
-    }),
-  ).toBeVisible();
-  await expect(
-    page.locator('main nav[aria-label="Article navigation"]'),
-  ).toContainText("Older: Playwright route fixture, older");
-  await expect(
-    page.locator('main nav[aria-label="Article navigation"]'),
-  ).toContainText("Playwright route fixture, older");
+
+  const redirectDoc = readFileSync(
+    join(process.cwd(), ".codex/tickets/blog-site-2026/redirects.md"),
+    "utf8",
+  );
+  const redirectConfig = readFileSync(
+    join(process.cwd(), "netlify.toml"),
+    "utf8",
+  );
+  const redirects = [
+    ["the-invisible-helper", "from-code-completion-to-architecture"],
+    ["the-turtle-story", "building-an-ai-visual-story"],
+    ["the-storytelling-marketing", "storytelling-and-product-placement"],
+    ["gaming-studio-lifecycle", "growth-culture-and-reinvention-in-games"],
+    [
+      "evolutionary-mismatches-in-modern-day",
+      "fast-judgments-and-modern-decisions",
+    ],
+    ["the-observer-effect", "what-physics-means-by-observation"],
+  ] as const;
+  for (const [oldSlug, newSlug] of redirects) {
+    expect(redirectDoc).toContain(`/post/2014/${oldSlug}/`);
+    expect(redirectDoc).toContain(`/writing/${newSlug}/`);
+    expect(redirectConfig).toContain(`from = "/post/2014/${oldSlug}/"`);
+    expect(redirectConfig).toContain(`to = "/writing/${newSlug}/"`);
+  }
+
+  const sitemap = readFileSync(
+    join(process.cwd(), "dist/sitemap-0.xml"),
+    "utf8",
+  );
+  for (const article of articles) {
+    expect(sitemap).toContain(
+      `https://blog.tihomir-selak.from.hr/writing/${article.slug}/`,
+    );
+  }
 });
 
-test("reading layout fits target widths and has no serious accessibility findings", async ({
+test("layout fits target widths and representative pages pass axe", async ({
   page,
 }) => {
   for (const width of [320, 390, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const path of ["/", "/writing/", draftRoutes[0]]) {
+    for (const path of [
+      "/",
+      "/writing/",
+      articleRoutes[0],
+      articleRoutes[3],
+      articleRoutes[5],
+    ]) {
       await page.goto(path);
       const overflow = await page.evaluate(
         () =>
@@ -132,13 +226,18 @@ test("reading layout fits target widths and has no serious accessibility finding
       expect(overflow, `${path} overflows at ${width}px`).toBe(false);
     }
   }
+
   await page.setViewportSize({ width: 1440, height: 1000 });
-  for (const [path, name] of [
+  const visualPages = [
     ["/", "home"],
     ["/writing/", "archive"],
-    [draftRoutes[0], "ai-workflow"],
-    [draftRoutes[1], "visual-story"],
-  ] as const) {
+    [articleRoutes[0], "technical"],
+    [articleRoutes[1], "creative"],
+    [articleRoutes[3], "leadership"],
+    [articleRoutes[4], "psychology"],
+    [articleRoutes[5], "physics"],
+  ] as const;
+  for (const [path, name] of visualPages) {
     await page.goto(path);
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
@@ -162,8 +261,9 @@ test("reading layout fits target widths and has no serious accessibility finding
   }
 });
 
-test("keyboard navigation exposes a visible skip link and local preview navigation stays inside main", async ({
+test("keyboard navigation, 200% zoom, and JavaScript-disabled reading work", async ({
   page,
+  browser,
 }) => {
   await page.goto("/");
   await page.keyboard.press("Tab");
@@ -173,6 +273,32 @@ test("keyboard navigation exposes a visible skip link and local preview navigati
   await expect(
     page.getByRole("link", { name: "Skip to content" }),
   ).toBeInViewport();
+
+  await page.setViewportSize({ width: 720, height: 900 });
+  await page.goto(articleRoutes[5]);
+  const zoomOverflow = await page.evaluate(
+    () =>
+      document.documentElement.scrollWidth >
+      document.documentElement.clientWidth,
+  );
+  expect(zoomOverflow).toBe(false);
+
+  const noScriptContext = await browser.newContext({
+    javaScriptEnabled: false,
+    baseURL: "http://127.0.0.1:4321",
+  });
+  const noScriptPage = await noScriptContext.newPage();
+  const response = await noScriptPage.goto(articleRoutes[3]);
+  expect(response?.status()).toBe(200);
+  await expect(noScriptPage.locator("main h1")).toHaveText(
+    "Growth, culture, and reinvention in game studios",
+  );
+  await expect(noScriptPage.locator(".prose-body")).toContainText(
+    "what can an outside observer responsibly learn",
+  );
+  await noScriptPage.close();
+  await noScriptContext.close();
+
   await page.goto(fixtureRoute);
   await expect(
     page.locator('main nav[aria-label="Article navigation"]'),

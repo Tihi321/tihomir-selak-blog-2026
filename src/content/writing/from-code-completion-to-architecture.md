@@ -3,7 +3,7 @@ title: "From code completion to architecture"
 description: "A look back at how AI-assisted coding changed the questions I asked while learning and building software."
 publishedAt: 2024-01-02
 updatedAt: 2026-09-24
-status: draft
+status: published
 topics: [ai, software-engineering]
 featured: true
 originalPath: /post/2014/the-invisible-helper/

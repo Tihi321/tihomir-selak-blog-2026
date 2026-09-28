@@ -13,3 +13,39 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
     Content-Security-Policy = "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; img-src 'self' data:; style-src 'self'; font-src 'self'; script-src 'self'; upgrade-insecure-requests"
+
+[[redirects]]
+  from = "/post/2014/the-invisible-helper/"
+  to = "/writing/from-code-completion-to-architecture/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/post/2014/the-turtle-story/"
+  to = "/writing/building-an-ai-visual-story/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/post/2014/the-storytelling-marketing/"
+  to = "/writing/storytelling-and-product-placement/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/post/2014/gaming-studio-lifecycle/"
+  to = "/writing/growth-culture-and-reinvention-in-games/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/post/2014/evolutionary-mismatches-in-modern-day/"
+  to = "/writing/fast-judgments-and-modern-decisions/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/post/2014/the-observer-effect/"
+  to = "/writing/what-physics-means-by-observation/"
+  status = 301
+  force = true

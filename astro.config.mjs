@@ -7,5 +7,8 @@ export default defineConfig({
   output: "static",
   integrations: [mdx(), sitemap()],
   markdown: { shikiConfig: { theme: "github-light" } },
+  vite: {
+    environments: { astro: { optimizeDeps: { include: ["picomatch"] } } },
+  },
   devToolbar: { enabled: false },
 });
