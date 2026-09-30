@@ -2,32 +2,40 @@
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ArticleList from "../../components/ArticleList.astro";
+import PageIntro from "../../components/PageIntro.astro";
+import Section from "../../components/Section.astro";
 import { isPublished, sortNewest } from "../../site";
 const articles = sortNewest(await getCollection("writing", isPublished));
+const years = [
+  ...new Set(articles.map((a) => a.data.publishedAt.getUTCFullYear())),
+].sort((a, b) => b - a);
+const byYear = years.map((year) => ({
+  year,
+  articles: articles.filter(
+    (a) => a.data.publishedAt.getUTCFullYear() === year,
+  ),
+}));
 ---
 
 <BaseLayout
   title="Writing"
   description="Published writing by Tihomir Selak, ordered from newest to oldest."
 >
-  <section class="page-intro wrap">
-    <h1>Writing</h1><p>
-      A chronological record of practical work, decisions, and experiments.
-    </p>
-  </section>
-  <section class="wrap articles" aria-label="Published articles">
+  <PageIntro
+    title="Writing"
+    lead="A chronological record of practical work, decisions, and experiments."
+  />
+  <section class="wrap" aria-label="Published articles">
     {
-      articles.length ? (
-        <ArticleList articles={articles} />
+      byYear.length ? (
+        byYear.map(({ year, articles }) => (
+          <Section id={`year-${year}`} label={String(year)} plain>
+            <ArticleList articles={articles} label={`Writing from ${year}`} />
+          </Section>
+        ))
       ) : (
         <p>No articles have been published yet.</p>
       )
     }
   </section>
 </BaseLayout>
-
-<style>
-  .articles {
-    padding-bottom: 5rem;
-  }
-</style>

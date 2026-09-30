@@ -1,7 +1,8 @@
 ---
 import { getCollection, render } from "astro:content";
 import ArticleLayout from "../../layouts/ArticleLayout.astro";
-import { sortNewest } from "../../site";
+import ArticleNavigation from "../../components/ArticleNavigation.astro";
+import { articleSlug, sortNewest } from "../../site";
 export async function getStaticPaths() {
   if (!import.meta.env.DEV) return [];
   const drafts = sortNewest(
@@ -18,31 +19,22 @@ const drafts = sortNewest(
   await getCollection("writing", ({ data }) => data.status === "draft"),
 );
 const currentIndex = drafts.findIndex((entry) => entry.id === article.id);
+const link = (entry: (typeof drafts)[number]) => ({
+  href: `/draft-preview/${articleSlug(entry)}/`,
+  title: entry.data.title,
+});
+const rows = [
+  currentIndex > 0 && {
+    label: "Newer draft",
+    links: [link(drafts[currentIndex - 1])],
+  },
+  currentIndex < drafts.length - 1 && {
+    label: "Older draft",
+    links: [link(drafts[currentIndex + 1])],
+  },
+].filter((row) => row !== false);
 ---
 
 <ArticleLayout article={article} Content={Content} draft>
-  {
-    (currentIndex > 0 || currentIndex < drafts.length - 1) && (
-      <nav class="wrap article-navigation" aria-label="Article navigation">
-        {currentIndex > 0 && (
-          <p>
-            <a
-              href={`/draft-preview/${drafts[currentIndex - 1].id.replace(/\.(md|mdx)$/, "")}/`}
-            >
-              Newer draft: {drafts[currentIndex - 1].data.title}
-            </a>
-          </p>
-        )}
-        {currentIndex < drafts.length - 1 && (
-          <p>
-            <a
-              href={`/draft-preview/${drafts[currentIndex + 1].id.replace(/\.(md|mdx)$/, "")}/`}
-            >
-              Older draft: {drafts[currentIndex + 1].data.title}
-            </a>
-          </p>
-        )}
-      </nav>
-    )
-  }
+  <ArticleNavigation rows={rows} />
 </ArticleLayout>

@@ -12,8 +12,12 @@ const csp = toml
   // https and break local loading; it does not affect style-src, so drop it.
   ?.replace(/;?\s*upgrade-insecure-requests/, "");
 
-// The canvas background is set on <html>. --canvas in src/styles/tokens.css is #f4f7f9.
-const canvas = "rgb(244, 247, 249)";
+// The canvas background is set on <html>. --c-carbon in src/styles/tokens.css
+// is light-dark(#eef2f8, #0a1020), so it follows the color scheme.
+const canvases = {
+  light: "rgb(238, 242, 248)",
+  dark: "rgb(10, 16, 32)",
+} as const;
 
 const paths = [
   "/",
@@ -23,45 +27,57 @@ const paths = [
   "/404.html",
 ];
 
-for (const path of paths) {
-  test(`renders styled with no CSP violations at ${path}`, async ({ page }) => {
-    expect(csp, "Content-Security-Policy found in netlify.toml").toBeTruthy();
+for (const scheme of ["light", "dark"] as const) {
+  test.describe(`${scheme} color scheme`, () => {
+    test.use({ colorScheme: scheme });
 
-    await page.route("**/*", async (route) => {
-      if (route.request().resourceType() !== "document") {
-        return route.continue();
-      }
-      const response = await route.fetch();
-      await route.fulfill({
-        response,
-        headers: {
-          ...response.headers(),
-          "content-security-policy": csp as string,
-        },
-      });
-    });
+    for (const path of paths) {
+      test(`renders styled with no CSP violations at ${path}`, async ({
+        page,
+      }) => {
+        expect(
+          csp,
+          "Content-Security-Policy found in netlify.toml",
+        ).toBeTruthy();
 
-    await page.addInitScript(() => {
-      const w = window as unknown as { __cspViolations: string[] };
-      w.__cspViolations = [];
-      document.addEventListener("securitypolicyviolation", (event) => {
-        w.__cspViolations.push(
-          `${event.violatedDirective} blocked ${event.blockedURI}`,
+        await page.route("**/*", async (route) => {
+          if (route.request().resourceType() !== "document") {
+            return route.continue();
+          }
+          const response = await route.fetch();
+          await route.fulfill({
+            response,
+            headers: {
+              ...response.headers(),
+              "content-security-policy": csp as string,
+            },
+          });
+        });
+
+        await page.addInitScript(() => {
+          const w = window as unknown as { __cspViolations: string[] };
+          w.__cspViolations = [];
+          document.addEventListener("securitypolicyviolation", (event) => {
+            w.__cspViolations.push(
+              `${event.violatedDirective} blocked ${event.blockedURI}`,
+            );
+          });
+        });
+
+        await page.goto(path);
+
+        const violations = await page.evaluate(
+          () =>
+            (window as unknown as { __cspViolations: string[] })
+              .__cspViolations,
         );
+        expect(violations).toEqual([]);
+
+        const background = await page.evaluate(
+          () => getComputedStyle(document.documentElement).backgroundColor,
+        );
+        expect(background).toBe(canvases[scheme]);
       });
-    });
-
-    await page.goto(path);
-
-    const violations = await page.evaluate(
-      () =>
-        (window as unknown as { __cspViolations: string[] }).__cspViolations,
-    );
-    expect(violations).toEqual([]);
-
-    const background = await page.evaluate(
-      () => getComputedStyle(document.documentElement).backgroundColor,
-    );
-    expect(background).toBe(canvas);
+    }
   });
 }

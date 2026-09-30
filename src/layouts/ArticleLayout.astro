@@ -1,7 +1,8 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
 import "../styles/prose.css";
-import { getReadingMinutes, SITE_URL } from "../site";
+import TagList from "../components/TagList.astro";
+import { getReadingMinutes, SITE_URL, topicLabel } from "../site";
 interface Props {
   article: any;
   Content: any;
@@ -12,13 +13,7 @@ const { data, body, id } = article;
 const canonical =
   data.canonicalUrl ?? `${SITE_URL}/writing/${id.replace(/\.(md|mdx)$/, "")}/`;
 const minutes = getReadingMinutes(body);
-const date = (d: Date) =>
-  d.toLocaleDateString("en", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    timeZone: "UTC",
-  });
+const date = (d: Date) => d.toISOString().slice(0, 10);
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
@@ -38,7 +33,7 @@ const jsonLd = {
   canonical={canonical}
   type="article"
 >
-  <article class="article wrap">
+  <article class="article wrap grid-12">
     <aside class="article-meta" aria-label="Article details">
       <time datetime={data.publishedAt.toISOString()}
         >{date(data.publishedAt)}</time
@@ -55,7 +50,7 @@ const jsonLd = {
       {
         draft && (
           <p class="draft-banner">
-            Local draft preview · this article is not included in the production
+            Local draft preview. This article is not included in the production
             site, feed, or sitemap.
           </p>
         )
@@ -64,33 +59,15 @@ const jsonLd = {
       <p class="standfirst">{data.description}</p>
       <div class="prose-body"><Content /></div>
     </div>
-    <aside class="article-aside" aria-label="About revisions">
-      {
-        data.updatedAt && (
-          <p>
-            <>
-              <strong>Revision</strong>
-              <br />
-            </>
-            This article first appeared on {date(data.publishedAt)} and was
-            revised on {date(data.updatedAt)}.
-          </p>
-        )
-      }
-    </aside>
     <section class="article-end" aria-labelledby="topics-heading">
       <h2 id="topics-heading">Filed under</h2>
-      <div class="article-topics">
-        {
-          data.topics.map((topic: string) =>
-            draft ? (
-              <span>{topic.replaceAll("-", " ")}</span>
-            ) : (
-              <a href={`/topics/${topic}/`}>{topic.replaceAll("-", " ")}</a>
-            ),
-          )
-        }
-      </div>
+      <TagList
+        label="Topics"
+        tags={data.topics.map((topic: string) => ({
+          label: topicLabel(topic),
+          href: draft ? undefined : `/topics/${topic}/`,
+        }))}
+      />
     </section>
   </article>
   <slot />

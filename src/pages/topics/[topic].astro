@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import ArticleList from "../../components/ArticleList.astro";
+import PageIntro from "../../components/PageIntro.astro";
 import { isPublished, sortNewest, topicLabel } from "../../site";
 const writing = sortNewest(await getCollection("writing", isPublished));
 export async function getStaticPaths() {
@@ -21,10 +22,17 @@ const articles = writing.filter((article) =>
   title={`Topic: ${topicLabel(topic)}`}
   description={`Published writing filed under ${topicLabel(topic)}.`}
 >
-  <section class="page-intro wrap">
-    <h1>{topicLabel(topic)}</h1><p>Writing filed under this topic.</p>
-  </section>
-  <section class="wrap archive-list">
-    <ArticleList articles={articles} />
+  <PageIntro title={topicLabel(topic)} lead="Writing filed under this topic." />
+  <section class="wrap archive-list" aria-label="Articles in this topic">
+    <ArticleList
+      articles={articles}
+      label={`Writing on ${topicLabel(topic)}`}
+    />
   </section>
 </BaseLayout>
+
+<style>
+  .archive-list {
+    padding-bottom: var(--space-8);
+  }
+</style>
