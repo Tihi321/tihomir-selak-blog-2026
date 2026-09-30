@@ -2,7 +2,7 @@
 title: "Python services and the tooling to ship them"
 description: "Why I added Python services and their packaging and build tooling at Pixotope starting in 2024, and what the packaging side involves."
 publishedAt: 2026-09-30
-status: draft
+status: published
 topics: [python, software-engineering]
 featured: false
 ---

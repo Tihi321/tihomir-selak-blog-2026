@@ -2,7 +2,7 @@
 title: "Starting a shared React component library"
 description: "Why I started a reusable React and TypeScript component library at Pixotope in 2021, and what keeping one going involves."
 publishedAt: 2026-09-30
-status: draft
+status: published
 topics: [frontend, software-engineering]
 featured: false
 ---

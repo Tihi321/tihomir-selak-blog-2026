@@ -2,7 +2,7 @@
 title: "Bringing Rust into our service layer"
 description: "Why I started using Rust at Pixotope in 2023, and what building daemon services and Tauri tooling taught me."
 publishedAt: 2026-09-30
-status: draft
+status: published
 topics: [rust, software-engineering]
 featured: false
 ---

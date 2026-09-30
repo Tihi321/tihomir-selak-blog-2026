@@ -2,7 +2,7 @@
 title: "Testing without the hardware"
 description: "Why I built Node.js and TypeScript device simulators at Pixotope starting in 2025, and what simulating hardware is good for."
 publishedAt: 2026-09-30
-status: draft
+status: published
 topics: [testing, developer-tools]
 featured: false
 ---

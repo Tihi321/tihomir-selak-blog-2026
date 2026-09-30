@@ -52,15 +52,56 @@ const articles = [
     published: "2026-09-24",
     topic: "experiments",
   },
+  {
+    title: "Starting a shared React component library",
+    slug: "react-component-library",
+    published: "2026-09-30",
+    topic: "frontend",
+  },
+  {
+    title: "A desktop tool for watching message traffic",
+    slug: "zeromq-traffic-explorer",
+    published: "2026-09-30",
+    topic: "developer-tools",
+  },
+  {
+    title: "Bringing Rust into our service layer",
+    slug: "rust-daemon-services",
+    published: "2026-09-30",
+    topic: "rust",
+  },
+  {
+    title: "Python services and the tooling to ship them",
+    slug: "python-services",
+    published: "2026-09-30",
+    topic: "python",
+  },
+  {
+    title: "Testing without the hardware",
+    slug: "device-simulators",
+    published: "2026-09-30",
+    topic: "testing",
+  },
+  {
+    title: "API docs from source to Confluence",
+    slug: "source-to-confluence-docs",
+    published: "2026-09-30",
+    topic: "documentation",
+  },
 ] as const;
 const articleRoutes = articles.map((article) => `/writing/${article.slug}/`);
+// The six work posts share the newest publication date, so any of them can
+// take the home page's single "Latest writing" slot.
+const newestRoutes = articles
+  .filter((article) => article.published === "2026-09-30")
+  .map((article) => `/writing/${article.slug}/`);
 const fixtureRoute = "/writing/__playwright-fixture-2025/";
 const reviewImages = join(
   process.cwd(),
   ".codex/tickets/TSB-02-add-relevant-content/review-images",
 );
 
-test("all seven articles are published with their original and revision dates", async ({
+test("all thirteen articles are published with their original and revision dates", async ({
   page,
 }) => {
   for (const path of ["/", "/writing/", "/topics/", "/about/"]) {
@@ -75,7 +116,7 @@ test("all seven articles are published with their original and revision dates", 
   await page.goto("/writing/");
   await expect(
     page.locator("section[aria-label='Published articles'] .entry"),
-  ).toHaveCount(7);
+  ).toHaveCount(articles.length);
 
   for (const article of articles) {
     const path = `/writing/${article.slug}/`;
@@ -123,9 +164,11 @@ test("published articles are discoverable from topics, the home page, and RSS", 
   request,
 }) => {
   await page.goto("/");
-  await expect(
-    page.getByRole("link", { name: "Why I’m rebuilding this blog" }),
-  ).toHaveAttribute("href", articleRoutes.at(-1)!);
+  const latestHref = await page
+    .locator("section[aria-labelledby='latest-heading'] a")
+    .first()
+    .getAttribute("href");
+  expect(newestRoutes).toContain(latestHref);
   await expect(
     page.getByRole("link", {
       name: "Growth, culture, and reinvention in game studios",
@@ -141,6 +184,12 @@ test("published articles are discoverable from topics, the home page, and RSS", 
     "psychology",
     "physics",
     "software-engineering",
+    "frontend",
+    "developer-tools",
+    "rust",
+    "python",
+    "testing",
+    "documentation",
   ]) {
     const response = await page.goto(`/topics/${topic}/`);
     expect(response?.status()).toBe(200);
