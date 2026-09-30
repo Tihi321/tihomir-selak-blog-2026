@@ -1,0 +1,34 @@
+---
+interface Row {
+  label: string;
+  links: { href: string; title: string }[];
+}
+
+interface Props {
+  rows: Row[];
+}
+
+const { rows } = Astro.props;
+---
+
+{
+  rows.length > 0 && (
+    <nav
+      class="article-navigation wrap grid-12"
+      aria-label="Article navigation"
+    >
+      <ul class="article-navigation__list">
+        {rows.map((row) => (
+          <li class="article-navigation__row">
+            <span class="article-navigation__label">{row.label}</span>
+            <span class="article-navigation__links">
+              {row.links.map((link) => (
+                <a href={link.href}>{link.title}</a>
+              ))}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}

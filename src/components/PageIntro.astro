@@ -1,0 +1,41 @@
+---
+interface Props {
+  title: string;
+  /** Lead paragraph in the main site's intro-lead style. */
+  lead?: string;
+}
+
+const { title, lead } = Astro.props;
+---
+
+<section class="page-intro wrap grid-12">
+  <h1>{title}</h1>
+  {lead && <p class="page-intro__lead">{lead}</p>}
+</section>
+
+<style>
+  .page-intro {
+    row-gap: var(--space-5);
+    padding-block: var(--space-9) var(--space-8);
+  }
+
+  .page-intro > * {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  .page-intro__lead {
+    max-width: 30ch;
+    color: var(--c-paper-bright);
+    font-size: var(--step-3);
+    line-height: var(--lh-3);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  @media (min-width: 1024px) {
+    .page-intro > * {
+      grid-column: 3 / span 7;
+    }
+  }
+</style>

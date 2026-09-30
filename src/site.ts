@@ -29,3 +29,40 @@ export function isPublished<T extends { id: string; data: { status: string } }>(
     !article.id.startsWith("__playwright-fixture")
   );
 }
+
+export const EMAIL = "tihomir.selak@outlook.com";
+export const LINKEDIN = "https://www.linkedin.com/in/selaktihomir/";
+export const GITHUB = "https://github.com/Tihi321";
+export const LOCATION = "Augsburg, Germany";
+
+export interface WritingEntry {
+  slug: string;
+  date: string;
+  title: string;
+  href: string;
+  topic: string;
+  minutes: number;
+}
+
+export function articleSlug(article: { id: string }): string {
+  return article.id.replace(/\.(md|mdx)$/, "");
+}
+
+export function toWritingEntry(
+  article: {
+    id: string;
+    body?: string;
+    data: { title: string; publishedAt: Date; topics: string[] };
+  },
+  draft = false,
+): WritingEntry {
+  const slug = articleSlug(article);
+  return {
+    slug,
+    date: article.data.publishedAt.toISOString().slice(0, 10),
+    title: article.data.title,
+    href: draft ? `/draft-preview/${slug}/` : `/writing/${slug}/`,
+    topic: topicLabel(article.data.topics[0] ?? ""),
+    minutes: getReadingMinutes(article.body),
+  };
+}

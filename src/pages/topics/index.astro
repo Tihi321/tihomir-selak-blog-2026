@@ -1,24 +1,64 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { isPublished } from "../../site";
+import PageIntro from "../../components/PageIntro.astro";
+import { isPublished, topicLabel } from "../../site";
 const writing = await getCollection("writing", isPublished);
-const topics = [
-  ...new Set(writing.flatMap((article) => article.data.topics)),
-].sort();
+const topics = [...new Set(writing.flatMap((article) => article.data.topics))]
+  .sort()
+  .map((topic) => ({
+    topic,
+    count: writing.filter((article) => article.data.topics.includes(topic))
+      .length,
+  }));
 ---
 
 <BaseLayout title="Topics" description="Browse published writing by topic.">
-  <section class="page-intro wrap">
-    <h1>Topics</h1><p>Browse the subjects that connect these notes.</p>
-  </section>
-  <nav class="topic-cloud wrap" aria-label="Topics">
-    {
-      topics.map((topic) => (
-        <a class="topic-link" href={`/topics/${topic}/`}>
-          {topic.replaceAll("-", " ")}
-        </a>
-      ))
-    }
+  <PageIntro
+    title="Topics"
+    lead="Browse the subjects that connect these notes."
+  />
+  <nav class="topics wrap" aria-label="Topics">
+    <ul class="topics__list">
+      {
+        topics.map(({ topic, count }) => (
+          <li class="topics__row">
+            <a href={`/topics/${topic}/`}>{topicLabel(topic)}</a>
+            <span class="topics__count">
+              {count} {count === 1 ? "post" : "posts"}
+            </span>
+          </li>
+        ))
+      }
+    </ul>
   </nav>
 </BaseLayout>
+
+<style>
+  .topics {
+    padding-bottom: var(--space-8);
+  }
+
+  .topics__list {
+    border-top: var(--border-hair);
+  }
+
+  .topics__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-5);
+    padding: var(--space-3) 0;
+    border-bottom: var(--border-hair);
+    font-size: var(--step-1);
+    line-height: var(--lh-1);
+  }
+
+  .topics__count {
+    color: var(--c-graphite);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    line-height: var(--lh--2);
+    white-space: nowrap;
+  }
+</style>

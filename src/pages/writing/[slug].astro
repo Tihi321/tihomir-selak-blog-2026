@@ -1,7 +1,8 @@
 ---
 import { getCollection, render } from "astro:content";
 import ArticleLayout from "../../layouts/ArticleLayout.astro";
-import { isPublished, sortNewest } from "../../site";
+import ArticleNavigation from "../../components/ArticleNavigation.astro";
+import { articleSlug, isPublished, sortNewest } from "../../site";
 export async function getStaticPaths() {
   const articles = await getCollection(
     "writing",
@@ -44,43 +45,23 @@ const related = published
       entry.data.topics.some((topic) => article.data.topics.includes(topic)),
   )
   .slice(0, 2);
+const link = (entry: (typeof navigationArticles)[number]) => ({
+  href: `/writing/${articleSlug(entry)}/`,
+  title: entry.data.title,
+});
+const rows = [
+  currentIndex > 0 && {
+    label: "Newer",
+    links: [link(navigationArticles[currentIndex - 1])],
+  },
+  currentIndex < navigationArticles.length - 1 && {
+    label: "Older",
+    links: [link(navigationArticles[currentIndex + 1])],
+  },
+  related.length > 0 && { label: "Related", links: related.map(link) },
+].filter((row) => row !== false);
 ---
 
 <ArticleLayout article={article} Content={Content}>
-  {
-    (currentIndex > 0 ||
-      currentIndex < navigationArticles.length - 1 ||
-      related.length > 0) && (
-      <nav class="wrap article-navigation" aria-label="Article navigation">
-        {currentIndex > 0 && (
-          <p>
-            <a
-              href={`/writing/${navigationArticles[currentIndex - 1].id.replace(/\.(md|mdx)$/, "")}/`}
-            >
-              Newer: {navigationArticles[currentIndex - 1].data.title}
-            </a>
-          </p>
-        )}
-        {currentIndex < navigationArticles.length - 1 && (
-          <p>
-            <a
-              href={`/writing/${navigationArticles[currentIndex + 1].id.replace(/\.(md|mdx)$/, "")}/`}
-            >
-              Older: {navigationArticles[currentIndex + 1].data.title}
-            </a>
-          </p>
-        )}
-        {related.length > 0 && (
-          <p>
-            Related:{" "}
-            {related.map((item) => (
-              <a href={`/writing/${item.id.replace(/\.(md|mdx)$/, "")}/`}>
-                {item.data.title}
-              </a>
-            ))}
-          </p>
-        )}
-      </nav>
-    )
-  }
+  <ArticleNavigation rows={rows} />
 </ArticleLayout>

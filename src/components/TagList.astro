@@ -1,0 +1,56 @@
+---
+interface Tag {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  tags: readonly Tag[];
+  label?: string;
+}
+
+const { tags, label = "Topics" } = Astro.props;
+---
+
+{
+  tags.length > 0 && (
+    <ul class="tag-list" aria-label={label}>
+      {tags.map((tag) => (
+        <li class="tag-list__tag">
+          {tag.href ? <a href={tag.href}>{tag.label}</a> : tag.label}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+<style>
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .tag-list__tag {
+    padding: 1px var(--space-2);
+    color: var(--c-graphite);
+    border: var(--border-hair);
+    border-radius: var(--radius-1);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    line-height: var(--lh--2);
+  }
+
+  .tag-list__tag:has(a) {
+    transition: border-color var(--dur-fast) var(--ease);
+  }
+
+  .tag-list__tag a {
+    text-decoration: none;
+  }
+
+  .tag-list__tag:has(a:hover),
+  .tag-list__tag:has(a:focus-visible) {
+    border-color: var(--c-phosphor);
+  }
+</style>

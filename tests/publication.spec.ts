@@ -91,7 +91,7 @@ const articles = [
 ] as const;
 const articleRoutes = articles.map((article) => `/writing/${article.slug}/`);
 // The six work posts share the newest publication date, so any of them can
-// take the home page's single "Latest writing" slot.
+// take the home page's single "Latest" slot.
 const newestRoutes = articles
   .filter((article) => article.published === "2026-09-30")
   .map((article) => `/writing/${article.slug}/`);
@@ -288,14 +288,19 @@ test("layout fits target widths and representative pages pass axe", async ({
   ] as const;
   for (const [path, name] of visualPages) {
     await page.goto(path);
-    const results = await new AxeBuilder({ page })
-      .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
-      .analyze();
-    expect(
-      results.violations.filter((issue) =>
-        ["serious", "critical"].includes(issue.impact ?? ""),
-      ),
-    ).toEqual([]);
+    for (const colorScheme of ["light", "dark"] as const) {
+      await page.emulateMedia({ colorScheme });
+      const results = await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+        .analyze();
+      expect(
+        results.violations.filter((issue) =>
+          ["serious", "critical"].includes(issue.impact ?? ""),
+        ),
+        `${path} in ${colorScheme}`,
+      ).toEqual([]);
+    }
+    await page.emulateMedia({ colorScheme: "light" });
     mkdirSync(reviewImages, { recursive: true });
     await page.screenshot({
       path: join(reviewImages, `${name}-1440x1000.png`),
