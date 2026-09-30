@@ -16,7 +16,7 @@ The public site is generated with `yarn build` and can be checked locally with `
 
 ## Published articles
 
-The publication contains seven articles: the two revised January 2024 posts, four substantially rewritten 2024 archive posts, and a 2026 note about the publication. Historical articles retain their original dates and record their September 2026 revisions. Scientific and industry claims use inline sources, and the old content is treated as historical material rather than current career evidence.
+The publication contains thirteen articles: the two revised January 2024 posts, four substantially rewritten 2024 archive posts, a 2026 note about the publication, and six September 2026 posts about Pixotope work (component library, ZeroMQ explorer, Rust services, Python services, device simulators, and source-to-Confluence docs). Historical articles retain their original dates and record their September 2026 revisions. Scientific and industry claims use inline sources, and the old content is treated as historical material rather than current career evidence.
 
 Article sources remain ordinary Markdown/MDX files in this Git repository. Review prose and citations in source before release. Draft status is available for future work and excludes drafts from production pages, feeds, topics, related writing, and the sitemap; it does not make source private.
 

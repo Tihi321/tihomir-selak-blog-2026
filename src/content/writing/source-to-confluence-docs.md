@@ -2,7 +2,7 @@
 title: "API docs from source to Confluence"
 description: "Why I built tooling in 2026 that reads API documentation from source code and publishes formatted pages to Confluence."
 publishedAt: 2026-09-30
-status: draft
+status: published
 topics: [documentation, developer-tools]
 featured: false
 ---

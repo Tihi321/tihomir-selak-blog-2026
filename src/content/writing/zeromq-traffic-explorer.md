@@ -2,7 +2,7 @@
 title: "A desktop tool for watching message traffic"
 description: "Why I built a Tauri, React and Rust desktop app in 2023 for watching, filtering and debugging ZeroMQ traffic."
 publishedAt: 2026-09-30
-status: draft
+status: published
 topics: [developer-tools, rust]
 featured: false
 ---
