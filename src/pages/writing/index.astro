@@ -15,11 +15,7 @@ const articles = sortNewest(await getCollection("writing", isPublished));
       A chronological record of practical work, decisions, and experiments.
     </p>
   </section>
-  <section
-    class="wrap"
-    style="padding-bottom: 5rem"
-    aria-label="Published articles"
-  >
+  <section class="wrap articles" aria-label="Published articles">
     {
       articles.length ? (
         <ArticleList articles={articles} />
@@ -29,3 +25,9 @@ const articles = sortNewest(await getCollection("writing", isPublished));
     }
   </section>
 </BaseLayout>
+
+<style>
+  .articles {
+    padding-bottom: 5rem;
+  }
+</style>
